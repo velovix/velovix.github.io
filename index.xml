@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>velovix</title>
-    <link>http://velovix.com/</link>
+    <link>https://velovix.github.io/</link>
     <description>Recent content on velovix</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 24 Jun 2016 20:49:33 -0700</lastBuildDate>
-    <atom:link href="http://velovix.com/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://velovix.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Remapping Caps Lock</title>
-      <link>http://velovix.com/post/remapping-caps-lock/</link>
+      <link>https://velovix.github.io/post/remapping-caps-lock/</link>
       <pubDate>Fri, 24 Jun 2016 20:49:33 -0700</pubDate>
       
-      <guid>http://velovix.com/post/remapping-caps-lock/</guid>
+      <guid>https://velovix.github.io/post/remapping-caps-lock/</guid>
       <description>&lt;p&gt;For me and many others, Caps Lock does little more than collect dust on the
 keyboard. These days, it seems pretty archaic to have a dedicated key for such
 a rarely-needed task.  It&amp;rsquo;s very common to see people online talk about mapping
