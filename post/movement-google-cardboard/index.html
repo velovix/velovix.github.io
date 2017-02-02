@@ -1,0 +1,215 @@
+<html lang="en">
+<head>
+
+  
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="author" content="Tyler Compton">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://velovix.github.io/css/fonts.css">
+  
+  
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/pure-min.css">
+  
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/grids-responsive-min.css">
+
+  <link rel="stylesheet" href="https://velovix.github.io/css/custom.css">
+
+  
+  
+  <link rel="stylesheet" href="https://velovix.github.io/highlight/styles/default.css">
+  
+  <script src="https://velovix.github.io/highlight/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+</head>
+<body>
+
+
+<div class="header pure-g">
+    <div class="pure-u-1-24 pure-u-md-5-24"></div>
+    <div class="pure-u-11-12 pure-u-md-5-8">
+        <div class="desktop pure-menu pure-menu-horizontal nav-menu">
+            
+            <a href="https://velovix.github.io/" class="site-title pure-menu-heading">velovix</a>
+            <ul class="pure-menu-list">
+                
+                <li class="pure-menu-item">
+                    <a href="https://velovix.github.io/about/" class="pure-menu-link">About</a>
+                </li>
+            </ul>
+        </div>
+        <div class="mobile pure-menu nav-menu">
+            <a href="https://velovix.github.io/" class="pure-menu-heading" id="toggle-home">velovix</a>
+            <a href="#" id="toggle-btn">&#9776;</a>
+            <ul class="pure-menu-list" id="toggle-content" style="display:none;">
+                
+                
+                <li class="pure-menu-item">
+                    <a href="https://velovix.github.io/about" class="pure-menu-link">About</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="pure-u-1-24 pure-u-md-1-6"></div>
+</div>
+
+
+<div class="pure-g">
+    <div class="pure-u-1-24 pure-u-md-5-24"></div>
+	<div class="pure-u-11-12 pure-u-md-5-8">
+        <div class="post">
+
+            <div class="post-title">
+                <p class="footnote">
+                    <time class="">0001-01-01</time>
+		            
+                    
+                    
+
+                    
+
+                    
+                </p>
+                <h1></h1>
+            </div>
+
+            <div class="post-content">
+                
+
+<p>+++ date = &ldquo;2017-02-01T16:48:56-07:00&rdquo;
+draft = false
+title = &ldquo;Movement Experimentation in Google Cardboard&rdquo;
++++</p>
+
+<p>I love how accessible Google Cardboard is. Got a smartphone and <a href="https://www.knoxlabs.com/products/knox-v2">$7</a>?
+You&rsquo;re fully equipped to experience virtual reality in your home.</p>
+
+<p>With that comes some trade-offs, though. The stock Cardboard headsets don&rsquo;t
+come with head straps (though solutions <a href="https://www.reddit.com/r/GoogleCardboard/comments/2epbbl/best_method_for_headstrap/ck1vpwq/">do exist</a>), the interface
+consists of one button, and most people aren&rsquo;t going to be running your
+application on top-of-the-line specs. Working with limitations can be fun,
+though. When used to its fullest extent, I think Cardboard can deliver some
+very cool little experiences.</p>
+
+<h2 id="the-problem">The Problem</h2>
+
+<p>Movement in virtual reality is a very hot topic right now. Developers have to
+play a tricky balancing act between comfort, immersiveness, and availability.
+Teleportation is the most common movement mechanic in virtual reality, because
+it is simple to implement and doesn&rsquo;t cause nausea, but teleportation doesn&rsquo;t
+feel natural and it&rsquo;s generally an unimmersive and sometimes jarring
+experience.</p>
+
+<p>These issues are well-outlined in other articles,
+<a href="https://unity3d.com/learn/tutorials/topics/virtual-reality/movement-vr">like this one</a>.</p>
+
+<h2 id="my-solution">My Solution</h2>
+
+<p><a href="https://www.youtube.com/watch?v=H0fgeGyrKH4">Here is the video of it in action.</a></p>
+
+<p>This is the space that my user needs to traverse.</p>
+
+<p><img src="https://velovix.github.io/cardboard-forest/landscape.png" alt="Landscape" /></p>
+
+<p>Clearly, it&rsquo;s pretty small, but I made a few key decisions that make this area
+good for my demo and the Cardboard platform.</p>
+
+<ol>
+<li>There are points of reference close-by in every direction, in the form of
+trees. This helps the user get a better idea of how they&rsquo;re moving and helps
+prevent motion sickness.</li>
+<li>The goal is immediately noticeable and visible from any point among the
+trees. This prompts the user to try to move.</li>
+<li>The graphics are purposely low-poly and use solid colors. Maintaining a
+comfortable (read: very high) frame rate on mobile phones can be difficult.
+You can see Google use the same sort of art style in their demos.</li>
+</ol>
+
+<p>This is what the environment looks like to the user.</p>
+
+<p><img src="https://velovix.github.io/cardboard-forest/view.png" alt="View" /></p>
+
+<p>When the player inevitably tries pressing the trigger on the headset, they will
+see a blue object tossed in front of them.</p>
+
+<p><img src="https://velovix.github.io/cardboard-forest/thrown-teleporter.png" alt="Thrown Teleporter" /></p>
+
+<p>The object will roll a ways in front of them, slowing down as it progresses,
+like how you might expect a ball to roll.</p>
+
+<p><img src="https://velovix.github.io/cardboard-forest/teleporter-on-ground.png" alt="Teleporter on the Ground" /></p>
+
+<p>After a short period of time, the player will move to the area the object was
+at.  The movement is quick and with a consistent velocity, both important
+things to keep the player comfortable. Before the move, the player gets to see
+where they will end up relative to the vantage points around them, and the
+gradual movement towards that point keeps the player from losing track of where
+they are.</p>
+
+            </div>
+        </div>
+	</div>
+    <div class="pure-u-1-24 pure-u-md-1-6"></div>
+</div>
+
+<div class="footer pure-g">
+    <div class="pure-u-1-24 pure-u-md-5-24"></div>
+    <div class="pure-u-11-12 pure-u-md-5-8">
+        <div class="pure-menu pure-menu-horizontal footer-content">
+            <ul>
+                <li class="pure-menu-heading" id="foot-name">Tyler Compton:</li>
+
+                
+
+                
+                <li class="pure-menu-item">
+                    <a href="https://github.com/velovix" class="pure-menu-link">GitHub</a>
+                </li>
+                
+
+                
+
+                
+
+                
+
+            </ul>
+            <a href="#" class="pure-menu-heading pull-right" id="gototop-btn">↑↑</a>
+        </div>
+	  </div>
+      <div class="pure-u-1-24 pure-u-md-1-6"></div>
+</div>
+
+
+<script src="https://velovix.github.io/js/jquery.min.js" type="text/javascript"></script>
+<script src="https://velovix.github.io/js/jquery.timeago.js" type="text/javascript"></script>
+<script type="text/javascript">
+  $(function(){
+    $("time.timeago").timeago();
+  })
+  $("#toggle-btn").click(function(){
+    $("#toggle-content").toggle();
+    if($(this).html() === "☰") {
+        $(this).html("X")
+    } else {
+        $(this).html("☰")
+    }
+  });
+  $(window).resize(function(){
+    if(window.innerWidth > 768) {
+      $(".desktop").removeAttr("style");
+    }
+  });
+</script>
+
+</body>
+</html>
+
