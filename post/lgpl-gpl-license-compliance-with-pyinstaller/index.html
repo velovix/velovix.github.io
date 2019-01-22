@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.53" />
+
+
+<title>LGPL and GPL License Compliance with PyInstaller - velovix</title>
+<meta property="og:title" content="LGPL and GPL License Compliance with PyInstaller - velovix">
+
+
+
+  
+
+
+
+
+
+
+<link rel="stylesheet" href="https://velovix.github.io/css/main.css" media="all">
+<link rel="stylesheet" href="https://velovix.github.io/css/fonts.css">
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="https://velovix.github.io/" class="nav-logo">
+    <img src="https://velovix.github.io/images/velovix-avatar.png" 
+         width="50" 
+         height="50" 
+         alt="Velovix Avatar">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="https://github.com/velovix">Github</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+  <article class="article">
+    <h1 class="article-title">LGPL and GPL License Compliance with PyInstaller</h1>
+    
+    <span class="article-date">2019-01-22</span>
+    
+
+    <div class="article-content">
+      
+
+<p>PyInstaller is a piece of software that attempts to bundle up a Python
+application and all its dependencies into a single executable. It&rsquo;s an excellent
+tool that makes deployments (especially to end users) much easier. It is capable
+of bundling not only a project&rsquo;s Python dependencies, but its C/C++ library
+dependencies as well.</p>
+
+<p>This is great for any Python project that wants that self-contained,
+single-executable experience that compiled languages can offer. It is also very
+useful for proprietary projects that don&rsquo;t want to deploy their code directly
+to users. However, PyInstaller is a very aggressive packaging tool and pays no
+mind to the licenses of the libraries it packages up. This poses a significant
+challenge if your project does not use a GPL-compatible license, because you
+may be violating the licenses of your LGPL or GPL dependencies.</p>
+
+<p>This post will take a look at strategies we have used to identify and either
+externalize or eliminate LGPL and GPL dependencies in a proprietary PyInstaller
+project.</p>
+
+<p>Please note that I am in no way a lawyer and it&rsquo;s the responsibility of each
+company or individual to do their due diligence when it comes to license
+compliance. This is not legal advice.</p>
+
+<h1 id="identifying-your-python-dependencies">Identifying Your Python Dependencies</h1>
+
+<p>Chances are that your project has a <code>requirements.txt</code> or <code>setup.py</code> file that
+specifies your Python dependencies. Looking at the licenses for these projects
+is a good start, but make sure that you also consult the licenses of your
+<em>transitive dependencies</em> as well. Transitive dependencies are the dependencies
+of your dependencies, and PyInstaller will package those alongside your direct
+dependencies.</p>
+
+<p>You can use <code>pip</code> to inspect your transitive dependencies using <code>pip show</code>.
+In the following example, I&rsquo;m taking a look at the dependencies of the <code>falcon</code>
+package.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">pip show falcon</code></pre></div>
+<p>This command outputs the following:</p>
+
+<pre><code>Name: falcon
+Version: 1.4.1
+Summary: An unladen web framework for building APIs and app backends.
+Home-page: http://falconframework.org
+Author: Kurt Griffiths
+Author-email: mail@kgriffs.com
+License: Apache 2.0
+Location: /home/velovix/.virtualenvs/test/lib/python3.6/site-packages
+Requires: six, python-mimeparse
+Required-by:
+</code></pre>
+
+<p>If we take a look at the &ldquo;Requires&rdquo; section of this output, we can see that
+falcon depends on the <code>six</code> and <code>python-mimeparse</code> packages. We need to make
+sure we&rsquo;re adhering to the licenses of these packages as well.</p>
+
+<h1 id="identifying-your-c-c-dependencies">Identifying Your C/C++ Dependencies</h1>
+
+<p>Identifying C/C++ dependencies is less straightforward. It&rsquo;s not always
+immediately clear what C/C++ libraries your project depends on and which ones
+PyInstaller finds and bundles up for you. The best way I&rsquo;ve found to know for
+sure is to inspect the directory that a PyInstalled executable creates at
+runtime.</p>
+
+<p>When you run an executable made with PyInstaller, it starts by unpacking almost
+everything that it is bundled with into a temporary directory. On Linux, this
+directory is located in <code>/tmp</code>. The actual name of this directory is random but
+it always starts with the <code>_MEI</code> prefix. As long as you&rsquo;re not running multiple
+PyInstaller executables, this should be enough information to find the directory
+in question.</p>
+
+<p>Start by running your program like normal.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">./MyCoolExecutable</code></pre></div>
+<p>While it&rsquo;s running, simply inspect the temporary directory that PyInstaller has
+created. We&rsquo;re looking for <code>.so</code> files, which are shared library files
+containing compiled C/C++ code. Using the names of these files, it is usually
+relatively straightforward to find their corresponding project and license.</p>
+
+<p>Depending on the size of your project, you may find quite a few shared library
+files in this directory. My project contained more than 50. It may take quite a
+while to sift through all these, but nobody said license compliance was easy.</p>
+
+<p>When looking through these libraries, take note of the names of library files
+that are GPL or LGPL licensed.</p>
+
+<h1 id="gpl-licensing">GPL Licensing</h1>
+
+<p>If your product is not using a GPL-compatible license, you will not be able to
+use a GPL licensed library. Any code that is licensed with GPL must be removed
+from your executable before deployment and you will not be able to link to an
+external GPL library, either. It should be easy to avoid GPL Python libraries
+by simply removing any libraries that use GPL code from your environment with
+<code>pip</code>. C/C++ libraries are not always so straightforward.</p>
+
+<p>If you find a library file that is GPL licensed in your project, you&rsquo;ll need to
+identify where this dependency comes from and remove it. This can be
+straightforward in circumstances where a Python package you&rsquo;re using directly
+depends on a GPL library. If that&rsquo;s not the case, it&rsquo;s likely that the GPL
+library is a <em>transitive dependency</em> of another C/C++ library you depend on.</p>
+
+<p>C/C++ library files can declare their dependencies on other library files by
+linking to them. PyInstaller uses this linking information to figure out which
+library files need to be included in the executable. We can inspect this
+linking information by running the <code>ldd</code> command on a library file. The
+following command will run <code>ldd</code> on every library file in your executable&rsquo;s
+temporary directory. You can then inspect the output of this command to find
+why an offending GPL dependency is being pulled into your build.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">find &lt;your /tmp/_MEIxxxx directory&gt; -type f -name <span style="color:#ed9d13">&#34;*.so&#34;</span> -exec <span style="color:#24909d">echo</span> {} <span style="color:#ed9d13">\;</span> -exec ldd {} <span style="color:#ed9d13">\;</span> </code></pre></div>
+<p>Here is an example of the kind of output this command generates.</p>
+
+<pre><code>...
+./xtables/libip6t_hbh.so
+        linux-vdso.so.1 (0x00007ffe79d56000)
+        libxtables.so.12 =&gt; /usr/lib/libxtables.so.12 (0x00007f4683acc000)
+        libc.so.6 =&gt; /usr/lib/libc.so.6 (0x00007f4683908000)
+        libdl.so.2 =&gt; /usr/lib/libdl.so.2 (0x00007f4683903000)
+        /usr/lib64/ld-linux-x86-64.so.2 (0x00007f4683b1f000)
+./xtables/libip6t_srh.so
+        linux-vdso.so.1 (0x00007fff799ad000)
+        libxtables.so.12 =&gt; /usr/lib/libxtables.so.12 (0x00007f4c7e29b000)
+        libc.so.6 =&gt; /usr/lib/libc.so.6 (0x00007f4c7e0d7000)
+        libdl.so.2 =&gt; /usr/lib/libdl.so.2 (0x00007f4c7e0d2000)
+        /usr/lib64/ld-linux-x86-64.so.2 (0x00007f4c7e2ef000)
+./xtables/libxt_SECMARK.so
+        linux-vdso.so.1 (0x00007ffe7a8c2000)
+        libxtables.so.12 =&gt; /usr/lib/libxtables.so.12 (0x00007ff02efb3000)
+        libc.so.6 =&gt; /usr/lib/libc.so.6 (0x00007ff02edef000)
+        libdl.so.2 =&gt; /usr/lib/libdl.so.2 (0x00007ff02edea000)
+        /usr/lib64/ld-linux-x86-64.so.2 (0x00007ff02f006000)
+...
+</code></pre>
+
+<p>The path to each library file is printed, then every library file it links to
+is printed under it. Searching through this output for the name of the GPL
+library file you&rsquo;ve identified should be sufficient to find out where it came
+from.</p>
+
+<h2 id="gnu-readline">GNU Readline</h2>
+
+<p>If you&rsquo;re creating a build on Linux, you&rsquo;re very likely to find library files
+for GNU Readline. Readline is a library that provides utilities for interactive
+command line applications and Python provides bindings to GNU Readline by
+default in the standard library. Here&rsquo;s the problem: GNU Readline is GPL
+licensed.</p>
+
+<p>Since Readline is part of the standard library, it will be included regardless
+of if you actually use the bindings. The only option I&rsquo;m aware of to avoid this
+is to compile the Python interpreter yourself in an environment where the C/C++
+Readline library is not installed. This will create a Python interpreter
+without the readline module available.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">python3 -c <span style="color:#ed9d13">&#34;import readline&#34;</span>
+Traceback (most recent call last):
+  File <span style="color:#ed9d13">&#34;&lt;string&gt;&#34;</span>, line <span style="color:#3677a9">1</span>, in &lt;module&gt;
+ModuleNotFoundError: No module named <span style="color:#ed9d13">&#39;readline&#39;</span></code></pre></div>
+<p>It&rsquo;s worth mentioning that Python&rsquo;s readline bindings do technically support
+linking to editline, a mostly API-compatible alternative to GNU Readline with a
+more permissive license. In fact, Python uses this by default on MacOS where
+GNU Readline is not commonly installed. However, at the time of this writing
+support for editline is really only designed for MacOS and I don&rsquo;t know of a
+way to have the interpreter use editline on Linux. The bright side is that if
+your only target is MacOS, you don&rsquo;t have to worry about this!</p>
+
+<h1 id="lgpl-licensing">LGPL Licensing</h1>
+
+<p>The LGPL license is complicated and may or may not be an option for your
+proprietary application. Some companies and individuals choose not to use LGPL
+licensed code in their proprietary applications at all due to concerns with how
+the license may be interpreted. Like every other legal decision, I will leave
+this to the discretion of the reader.</p>
+
+<p>If you decide to use LGPL code in your product, you must allow users to swap
+out that LGPL component with a modified version. The following is the &ldquo;Combined
+Works&rdquo; excerpt from the LGPL 3.0 regarding this.</p>
+
+<pre><code>  4. Combined Works.
+
+  You may convey a Combined Work under terms of your choice that,
+taken together, effectively do not restrict modification of the
+portions of the Library contained in the Combined Work and reverse
+engineering for debugging such modifications, if you also do each of
+the following:
+
+   a) Give prominent notice with each copy of the Combined Work that
+   the Library is used in it and that the Library and its use are
+   covered by this License.
+
+   b) Accompany the Combined Work with a copy of the GNU GPL and this license
+   document.
+
+   c) For a Combined Work that displays copyright notices during
+   execution, include the copyright notice for the Library among
+   these notices, as well as a reference directing the user to the
+   copies of the GNU GPL and this license document.
+
+   d) Do one of the following:
+
+       0) Convey the Minimal Corresponding Source under the terms of this
+       License, and the Corresponding Application Code in a form
+       suitable for, and under terms that permit, the user to
+       recombine or relink the Application with a modified version of
+       the Linked Version to produce a modified Combined Work, in the
+       manner specified by section 6 of the GNU GPL for conveying
+       Corresponding Source.
+
+       1) Use a suitable shared library mechanism for linking with the
+       Library.  A suitable mechanism is one that (a) uses at run time
+       a copy of the Library already present on the user's computer
+       system, and (b) will operate properly with a modified version
+       of the Library that is interface-compatible with the Linked
+       Version.
+
+   e) Provide Installation Information, but only if you would otherwise
+   be required to provide such information under section 6 of the
+   GNU GPL, and only to the extent that such information is
+   necessary to install and execute a modified version of the
+   Combined Work produced by recombining or relinking the
+   Application with a modified version of the Linked Version. (If
+   you use option 4d0, the Installation Information must accompany
+   the Minimal Corresponding Source and Corresponding Application
+   Code. If you use option 4d1, you must provide the Installation
+   Information in the manner specified by section 6 of the GNU GPL
+   for conveying Corresponding Source.)
+</code></pre>
+
+<p>If your project distributes its source to the customer, complying with this
+aspect of LGPL is straightforward. Simply include with your distribution
+instructions on how to rebuild the executable with PyInstaller. Then the user
+may install their own modified versions of any LGPL dependency and PyInstaller
+will create an executable with that version instead. For closed-source
+projects, things get more complicated.</p>
+
+<h2 id="c-c-dependencies">C/C++ Dependencies</h2>
+
+<p>Our goal in this section is to filter LGPL C/C++ libraries out of the
+executable and put them into a separate <code>lib</code> folder. This folder will be
+deployed alongside the executable. End users who wish to swap out the program&rsquo;s
+LGPL dependencies with their own modified version may simply compile the
+modified version into a shared library file and replace the one included in the
+deployment. We can accomplish this by hooking into PyInstaller&rsquo;s library
+inclusion system.</p>
+
+<p>As you probably already know, we can instruct PyInstaller on how we want our
+application built by pointing it to a <code>.spec</code> file. A simple <code>build.spec</code> might
+look something like this:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#999;font-style:italic"># -*- mode: python -*-</span>
+
+analysis = Analysis([<span style="color:#ed9d13">&#39;./my_main_file.py&#39;</span>],
+    binaries=[],
+    datas=[],
+    hiddenimports=[],
+    hookspath=[],
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=None)
+
+pyz = PYZ(analysis.pure, analysis.zipped_data, cipher=None)
+
+elf = EXE(pyz,
+    analysis.scripts,
+    analysis.binaries,
+    analysis.zipfiles,
+    analysis.datas,
+    name=<span style="color:#ed9d13">&#39;MyCoolExecutable&#39;</span>,
+    debug=False,
+    strip=False,
+    upx=True,
+    console=True)</code></pre></div>
+<p>When you create a new <code>Analysis</code> object, PyInstaller does the work of
+identifying your dependencies. The <code>binaries</code> field is a list of tuples in the
+format <code>(filename, full_path, type)</code>. These fields represent all of the shared
+library files that PyInstaller will put in your resulting executable. We may
+simply filter out the libraries we want externalized from this list. The result
+might look something like this:</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#999;font-style:italic"># -*- mode: python -*-</span>
+<span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">shutil</span> <span style="color:#6ab825;font-weight:bold">import</span> copyfile
+<span style="color:#6ab825;font-weight:bold">from</span> <span style="color:#447fcf;text-decoration:underline">pathlib</span> <span style="color:#6ab825;font-weight:bold">import</span> Path
+
+analysis = Analysis([<span style="color:#ed9d13">&#39;./my_main_file.py&#39;</span>],
+    binaries=[],
+    datas=[],
+    hiddenimports=[],
+    hookspath=[],
+    runtime_hooks=[],
+    excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=None)
+
+lgpl_libraries = [<span style="color:#ed9d13">&#34;libavcodec&#34;</span>, <span style="color:#ed9d13">&#34;libavformat&#34;</span>]
+
+<span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">is_lgpl</span>(filename):
+    <span style="color:#6ab825;font-weight:bold">for</span> lgpl_lib <span style="color:#6ab825;font-weight:bold">in</span> lgpl_libraries:
+        <span style="color:#6ab825;font-weight:bold">if</span> lgpl_lib <span style="color:#6ab825;font-weight:bold">in</span> filename:
+            <span style="color:#6ab825;font-weight:bold">return</span> True
+
+    <span style="color:#6ab825;font-weight:bold">return</span> False
+
+filtered_binaries = []
+<span style="color:#6ab825;font-weight:bold">for</span> binary <span style="color:#6ab825;font-weight:bold">in</span> analysis.binaries:
+    filename, path, type_ = binary
+
+    <span style="color:#6ab825;font-weight:bold">if</span> is_lgpl(filename):
+        <span style="color:#6ab825;font-weight:bold">print</span>(<span style="color:#ed9d13">&#34;Externalizing library:&#34;</span>, filename)
+        copyfile(path, Path(<span style="color:#ed9d13">&#34;lib&#34;</span>, filename))
+    <span style="color:#6ab825;font-weight:bold">else</span>:
+        filtered_binaries.append(binary)
+
+
+pyz = PYZ(analysis.pure, analysis.zipped_data, cipher=None)
+
+elf = EXE(pyz,
+    analysis.scripts,
+    filtered_binaries,
+    analysis.zipfiles,
+    analysis.datas,
+    name=<span style="color:#ed9d13">&#39;MyCoolExecutable&#39;</span>,
+    debug=False,
+    strip=False,
+    upx=True,
+    console=True)</code></pre></div>
+<p>In the above example, we keep a list of known LGPL libraries and filter out the
+<code>binaries</code> field of any libraries that look like them. When we find a match, we
+copy the file to a <code>lib</code> directory and exclude it from the bundling process.
+The resulting filtered list of non-LGPL libraries is fed into the <code>EXE</code>
+constructor.</p>
+
+<p>Now that these library files are no longer managed by PyInstaller, we need to
+make sure the linker can find these library files at runtime. There are a few
+ways to accomplish this, but we opted to deploy a script alongside the
+executable that modifies the <code>LD_LIBRARY_PATH</code> variable to include the <code>lib</code>
+directory we created.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#cd2828;font-weight:bold">#!/usr/bin/env bash
+</span><span style="color:#cd2828;font-weight:bold"></span>
+<span style="color:#40ffff">LD_LIBRARY_PATH</span>=./lib:<span style="color:#40ffff">$LD_LIBRARY_PATH</span> ./MyCoolExecutable</code></pre></div>
+<h2 id="python-dependencies">Python Dependencies</h2>
+
+<p>PyInstaller does a lot in the background to make its Python dependency
+management feel as seamless as it does. We need to take a moment to understand
+how Python looks for modules and what PyInstaller does to change the
+interpreter&rsquo;s default behavior in this respect before going forward and making
+modifications of our own.</p>
+
+<p>Note that these explanations are probably an oversimplification of what&rsquo;s
+actually going on behind the scenes. I&rsquo;m not an expert on this topic.</p>
+
+<h3 id="the-sys-path-variable">The <code>sys.path</code> Variable</h3>
+
+<p>When you import a module, the interpreter looks in a variety of places to find
+the corresponding Python file. It consults a list of directories one-by-one
+until it finds a matching module. That list of directories is <code>sys.path</code>. The
+<code>sys.path</code> variable is very similar in spirit to the <code>LD_LIBRARY_PATH</code>
+environment variable that C/C++ developers are all too familiar with. It&rsquo;s also
+a bit like the regular old <code>PATH</code> variable from Bash. They&rsquo;re all simply lists
+of paths that instruct a program on where to look for something.</p>
+
+<p>By default, the first entry in <code>sys.path</code> points to the same directory as the
+Python script that you&rsquo;re running. The other entries depend on your
+installation and environment. One of the entries will point to the location of
+the standard library, for instance. If you&rsquo;re running in a virtual environment,
+there will be entries pointing to where in that virtual environment your
+dependencies are stored. Basically, if you have a Python package installed
+somewhere and you are able to import it, it&rsquo;s likely because there&rsquo;s a
+<code>sys.path</code> entry pointing to that location.</p>
+
+<p>For more information on <code>sys.path</code>, take a look at the
+<a href="https://docs.python.org/3/library/sys.html#sys.path">official documentation</a>.</p>
+
+<p>Keep in mind though that everything I&rsquo;ve mentioned so far are just the
+interpreter&rsquo;s defaults. Like so many other things in Python, this system can be
+completely customized. This brings us to our next topic.</p>
+
+<h3 id="the-sys-meta-path-variable">The <code>sys.meta_path</code> Variable</h3>
+
+<p>For simple cases, editing <code>sys.path</code> is usually all you need to do to allow
+Python to find your dependencies, but if you want to get into the nitty gritty
+and completely change how Python finds modules, <code>sys.meta_path</code> is the tool to
+reach for.</p>
+
+<p>The <code>sys.meta_path</code> variable is a list of &ldquo;meta path finders&rdquo;. A meta path
+finder is an object that can find a module from the information in an import
+statement. These objects expose a few key methods that the interpreter calls to
+access this functionality. The built-in meta path finders consult <code>sys.path</code> to
+do this work, but a custom meta path finder could use any method it likes in
+order to find modules.</p>
+
+<p>PyInstaller injects its own custom objects into <code>sys.meta_path</code> so that the
+modules embedded in the executable can be found by the interpreter. These
+meta path finders do not consult <code>sys.path</code>. If we want to add our own custom
+module location, editing <code>sys.path</code> will not be enough. Instead, we need to
+create a meta path finder of our own and inject it into <code>sys.meta_path</code>!</p>
+
+<p>By the way, if you want to learn more about how PyInstaller does what it does,
+take a look at their excellent <a href="https://pyinstaller.readthedocs.io/en/v3.3.1/advanced-topics.html#python-imports-in-a-bundled-app">documentation</a>.</p>
+
+<h3 id="the-solution">The Solution</h3>
+
+<p>With all this background in mind, let&rsquo;s circle back to the original problem and
+demonstrate how our newfound knowledge will help us solve it.</p>
+
+<p>Say you&rsquo;re creating a proprietary application that depends on <code>python-vlc</code>.
+This package is LGPL licensed, so we have to give users a way to substitute in
+their own modified version. To do this, we&rsquo;re going to allow the user to set an
+optional environment variable called <code>PYTHON_VLC_PATH</code>, whose value is a path
+leading to the user&rsquo;s custom <code>python-vlc</code> implementation. If this environment
+variable is set, we will import from that location instead of our prepackaged
+version.</p>
+
+<p>As we mentioned earlier, we&rsquo;re going to have to write a custom meta path finder
+to accomplish this. The only required method for a meta path finder to
+implement is <code>find_spec</code>. With this in mind, let&rsquo;s create a meta path finder
+that can import a module given its name and the path to its implementation.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#6ab825;font-weight:bold">class</span> <span style="color:#447fcf;text-decoration:underline">LGPLFinder</span>:
+    <span style="color:#6ab825;font-weight:bold">def</span> __init__(self, module_name, custom_location):
+        self.module_name = module_name
+        self.custom_location = custom_location
+
+    <span style="color:#6ab825;font-weight:bold">def</span> <span style="color:#447fcf">find_spec</span>(self, fullname, path, target=None):
+        <span style="color:#6ab825;font-weight:bold">if</span> fullname == self.module_name:
+            source = os.path.join(self.custom_location,
+                                  self.module_name + <span style="color:#ed9d13">&#34;.py&#34;</span>)
+            loader = SourceFileLoader(self.module_name, source)
+            <span style="color:#6ab825;font-weight:bold">return</span> ModuleSpec(self.module_name, loader)
+        <span style="color:#6ab825;font-weight:bold">else</span>:
+            <span style="color:#999;font-style:italic"># Some other module, let other importers handle it</span>
+            <span style="color:#6ab825;font-weight:bold">return</span> None</code></pre></div>
+<p>The class is fairly simple. You can see that we only try to import the module
+if its <code>fullname</code> is equal to the module we&rsquo;re tasked with importing.
+Otherwise, we return <code>None</code>, which tells the interpreter to consult the next
+meta path finder in <code>sys.meta_path</code>. If it is our module of interest, we create
+a path pointing to a Python file with the same name as the module in the custom
+location provided earlier. We put this and the module&rsquo;s name into a
+<code>SourceFileLoader</code>, a class that handles the details of how to load a Python
+file into a module. What we return is a ModuleSpec, a class that describes
+import-related information about a module.</p>
+
+<p>I would definitely recommend reading up on these classes if you&rsquo;re curious
+about the details. See the documentation for
+<a href="https://docs.python.org/3/library/importlib.html#importlib.machinery.SourceFileLoader">SourceFileLoader</a> and <a href="https://docs.python.org/3/library/importlib.html#importlib.machinery.ModuleSpec">ModuleSpec</a>.</p>
+
+<p>Now that we have this custom meta path finder, let&rsquo;s take a look at how we
+would inject it into <code>sys.meta_path</code>.</p>
+<div class="highlight"><pre style="color:#d0d0d0;background-color:#202020;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">python_vlc_path = os.environ.get(<span style="color:#ed9d13">&#34;PYTHON_VLC_PATH&#34;</span>, None)
+<span style="color:#6ab825;font-weight:bold">if</span> python_vlc_path <span style="color:#6ab825;font-weight:bold">is</span> <span style="color:#6ab825;font-weight:bold">not</span> None:
+    finder = LGPLFinder(<span style="color:#ed9d13">&#34;vlc&#34;</span>, python_vlc_path)
+    sys.meta_path.insert(<span style="color:#3677a9">0</span>, finder)
+
+    <span style="color:#6ab825;font-weight:bold">import</span> <span style="color:#447fcf;text-decoration:underline">vlc</span>
+
+    sys.meta_path.pop(<span style="color:#3677a9">0</span>)</code></pre></div>
+<p>Once again, the code is surprisingly simple. We check to see if the user has
+set the environment variable. If they have, we create a new LGPLFinder for
+importing <code>python-vlc</code>. Before importing, we insert our finder at the very
+beginning of <code>sys.meta_path</code>, ensuring it is the first meta path finder that
+gets run. Then, we import <code>python-vlc</code> and remove the meta path finder from
+<code>sys.meta_path</code>, since we no longer need it.</p>
+
+<p>One important thing to know is that this code <em>must be run before your LGPL
+dependency is imported anywhere else</em>. This is because modules in Python are
+singletons. No matter how many times a module is imported in a project, the
+initialization of the module only happens once and we need to make sure it
+happens while our custom meta path loader is active. The benefit to this is
+that your LGPL dependency can be imported normally everywhere else in your
+project after this initial import.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Achieving full license compliance is difficult and PyInstaller doesn&rsquo;t make it
+any easier. However, we&rsquo;ve demonstrated that it&rsquo;s still possible with enough
+diligence and some knowledge about PyInstaller&rsquo;s inner workings.</p>
+
+    </div>
+ 
+    <ul class="article-taxonomy">
+      
+    
+      
+  </article>
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="https://velovix.github.io/index.xml" type="application/rss+xml" target="_blank"><i class="fa fa-rss"></i> RSS feed</a>
+          </li>
+          <li>
+            <a href="https://github.com/mobybit/hugo-natrium-theme"><i class="fa fa-github"></i> Code</a>
+          </li>
+          <li>
+            <a href="https://velovix.github.io/site-notice">Site notice</a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+
+  </body>
+</html>
+
