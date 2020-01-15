@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on velovix</title>
@@ -6,7 +6,7 @@
     <description>Recent content in Posts on velovix</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 22 Jan 2019 10:26:00 -0700</lastBuildDate>
+    <lastBuildDate>Fri, 31 Aug 2018 19:57:12 -0700</lastBuildDate>
     
 	<atom:link href="https://velovix.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,10 +14,10 @@
     <item>
       <title>LGPL and GPL License Compliance with PyInstaller</title>
       <link>https://velovix.github.io/post/lgpl-gpl-license-compliance-with-pyinstaller/</link>
-      <pubDate>Tue, 22 Jan 2019 10:26:00 -0700</pubDate>
+      <pubDate>Fri, 31 Aug 2018 19:57:12 -0700</pubDate>
       
       <guid>https://velovix.github.io/post/lgpl-gpl-license-compliance-with-pyinstaller/</guid>
-      <description>PyInstaller is a piece of software that attempts to bundle up a Python application and all its dependencies into a single executable. It&amp;rsquo;s an excellent tool that makes deployments (especially to end users) much easier. It is capable of bundling not only a project&amp;rsquo;s Python dependencies, but its C/C++ library dependencies as well.
+      <description>PyInstaller is a piece of software that attempts to bundle up a Python application and all its dependencies into a single executable. It&#39;s an excellent tool that makes deployments (especially to end users) much easier. It is capable of bundling not only a project&#39;s Python dependencies, but its C/C++ library dependencies as well.
 This is great for any Python project that wants that self-contained, single-executable experience that compiled languages can offer.</description>
     </item>
     
@@ -27,8 +27,8 @@ This is great for any Python project that wants that self-contained, single-exec
       <pubDate>Wed, 01 Feb 2017 16:48:56 -0700</pubDate>
       
       <guid>https://velovix.github.io/post/movement-google-cardboard/</guid>
-      <description>I love how accessible Google Cardboard is. Got a smartphone and $7? You&amp;rsquo;re fully equipped to experience virtual reality in your home.
-With that comes some trade-offs, though. The stock Cardboard headsets don&amp;rsquo;t come with head straps (though solutions do exist), the interface consists of one button, and most people aren&amp;rsquo;t going to be running your application on top-of-the-line specs. Working with limitations can be fun, though. When used to its fullest extent, I think Cardboard can deliver some very cool little experiences.</description>
+      <description>I love how accessible Google Cardboard is. Got a smartphone and $7? You&#39;re fully equipped to experience virtual reality in your home.
+With that comes some trade-offs, though. The stock Cardboard headsets don&#39;t come with head straps (though solutions do exist), the interface consists of one button, and most people aren&#39;t going to be running your application on top-of-the-line specs. Working with limitations can be fun, though. When used to its fullest extent, I think Cardboard can deliver some very cool little experiences.</description>
     </item>
     
     <item>
@@ -37,7 +37,7 @@ With that comes some trade-offs, though. The stock Cardboard headsets don&amp;rs
       <pubDate>Thu, 28 Jul 2016 14:05:00 -0700</pubDate>
       
       <guid>https://velovix.github.io/post/dealing-with-multiple-files-vim/</guid>
-      <description>The VIM learning curve is legendarily steep. As if the modal editing wasn&amp;rsquo;t tricky enough, a lot of basic editor features that most users take for granted appear at first to be absent completely, like syntax highlighting, autocomplete, and, as we&amp;rsquo;ll be talking about here, file navigation.
+      <description>The VIM learning curve is legendarily steep. As if the modal editing wasn&#39;t tricky enough, a lot of basic editor features that most users take for granted appear at first to be absent completely, like syntax highlighting, autocomplete, and, as we&#39;ll be talking about here, file navigation.
 Some of these issues have simple solutions (:syntax on, for instance), but it turns out that dealing with multiple files in VIM is a complicated subject with a lot of solutions, some better than others.</description>
     </item>
     
@@ -47,7 +47,7 @@ Some of these issues have simple solutions (:syntax on, for instance), but it tu
       <pubDate>Fri, 24 Jun 2016 20:49:33 -0700</pubDate>
       
       <guid>https://velovix.github.io/post/remapping-caps-lock/</guid>
-      <description>For me and many others, Caps Lock does little more than collect dust on the keyboard. These days, it seems pretty archaic to have a dedicated key for such a rarely-needed task. It&amp;rsquo;s very common to see people online talk about mapping Caps Lock to the CTRL key, which can make executing common chords like CTRL+S easier on the hands. In this post I describe my experience with the Caps Lock to CTRL mapping and why I ended up switching back.</description>
+      <description>For me and many others, Caps Lock does little more than collect dust on the keyboard. These days, it seems pretty archaic to have a dedicated key for such a rarely-needed task. It&#39;s very common to see people online talk about mapping Caps Lock to the CTRL key, which can make executing common chords like CTRL+S easier on the hands. In this post I describe my experience with the Caps Lock to CTRL mapping and why I ended up switching back.</description>
     </item>
     
   </channel>
